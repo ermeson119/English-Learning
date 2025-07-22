@@ -16,6 +16,17 @@
     min-height: 75vh;
 }
 
+/* Garantir que o conteúdo principal seja visível */
+main {
+    position: relative;
+    z-index: 2;
+}
+
+.container-fluid {
+    position: relative;
+    z-index: 2;
+}
+
 /* Efeitos de hover */
 .hover-card {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -218,6 +229,74 @@
 /* Footer */
 footer {
     margin-top: auto;
+    background: linear-gradient(135deg, #0d6efd 0%, #1a1a2e 50%, #16213e 100%) !important;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.03)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    pointer-events: none;
+    z-index: 0;
+}
+
+footer .text-light-50 {
+    color: rgba(255, 255, 255, 0.7) !important;
+    position: relative;
+    z-index: 1;
+}
+
+footer .text-light-50:hover {
+    color: rgba(255, 255, 255, 0.9) !important;
+    transition: color 0.3s ease;
+}
+
+footer a.text-light-50:hover {
+    color: var(--bs-warning) !important;
+    transform: translateX(5px);
+    transition: all 0.3s ease;
+}
+
+footer .border-light-50 {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+footer .badge {
+    transition: transform 0.2s ease;
+}
+
+footer .badge:hover {
+    transform: scale(1.05);
+}
+
+footer .social-links a {
+    transition: all 0.3s ease;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+}
+
+footer .social-links a:hover {
+    color: var(--bs-warning) !important;
+    transform: translateY(-3px);
+}
+
+/* Responsividade do footer */
+@media (max-width: 768px) {
+    footer .text-md-end {
+        text-align: center !important;
+    }
+    
+    footer .d-flex.justify-content-md-end {
+        justify-content: center !important;
+    }
 }
 
 /* Scrollbar customizada */
@@ -236,4 +315,23 @@ footer {
 
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(13, 110, 253, 0.8);
+}
+
+html, body {
+    height: 100%;
+    min-height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main.container-fluid {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
 }

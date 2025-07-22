@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block titulo %}Relatório - {{ turma.nome }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Cabeçalho -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="bi bi-graph-up me-2"></i>Relatório da Turma</h2>
+                    <p class="text-muted mb-0">{{ turma.nome }}</p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-{{ 'success' if turma.ativa else 'secondary' }} fs-6">
+                        {{ 'Ativa' if turma.ativa else 'Inativa' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas Gerais -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ estatisticas.total_alunos }}</h3>
+                    <p class="card-text">Total de Alunos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ estatisticas.alunos_ativos }}</h3>
+                    <p class="card-text">Alunos Ativos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ estatisticas.total_modulos }}</h3>
+                    <p class="card-text">Módulos Criados</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ estatisticas.total_atividades }}</h3>
+                    <p class="card-text">Atividades</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Progresso dos Alunos -->
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-person-check me-2"></i>Progresso dos Alunos</h5>
+                </div>
+                <div class="card-body">
+                    {% if progresso_alunos %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Aluno</th>
+                                        <th>Módulos Concluídos</th>
+                                        <th>Atividades Completadas</th>
+                                        <th>Pontuação Total</th>
+                                        <th>Última Atividade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for aluno in progresso_alunos %}
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <strong>{{ aluno.nome }}</strong>
+                                                <br><small class="text-muted">{{ aluno.email }}</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ (aluno.modulos_concluidos / estatisticas.total_modulos * 100)|round(1) if estatisticas.total_modulos else 0 }}%">
+                                                    {{ aluno.modulos_concluidos }}/{{ estatisticas.total_modulos }}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">{{ aluno.atividades_completadas }}</span>
+                                        </td>
+                                        <td>
+                                            <strong class="text-primary">{{ aluno.pontuacao_total }} pts</strong>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ aluno.ultima_atividade.strftime('%d/%m/%Y') if aluno.ultima_atividade else 'Nunca' }}
+                                            </small>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-4">
+                            <i class="bi bi-person-check display-4"></i><br>
+                            Nenhum progresso registrado ainda
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Ranking -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-trophy me-2"></i>Top 5 Alunos</h5>
+                </div>
+                <div class="card-body">
+                    {% if ranking %}
+                        <div class="list-group list-group-flush">
+                            {% for aluno in ranking %}
+                            {% set i = loop.index0 %}
+                            {% if loop.index <= 5 %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    {% if i == 0 %}
+                                        <i class="bi bi-trophy-fill text-warning me-2"></i>
+                                    {% elif i == 1 %}
+                                        <i class="bi bi-trophy-fill text-secondary me-2"></i>
+                                    {% elif i == 2 %}
+                                        <i class="bi bi-trophy-fill text-bronze me-2"></i>
+                                    {% else %}
+                                        <span class="badge bg-secondary me-2">{{ i + 1 }}</span>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-0">{{ aluno.nome }}</h6>
+                                        <small class="text-muted">{{ aluno.pontos }} pontos</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">
+                            <i class="bi bi-trophy display-4"></i><br>
+                            Nenhum aluno com pontuação
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Atividades Mais Realizadas -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>Atividades Mais Realizadas</h5>
+                </div>
+                <div class="card-body">
+                    {% if atividades_populares %}
+                        <div class="list-group list-group-flush">
+                            {% for atividade in atividades_populares %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">{{ atividade.titulo }}</h6>
+                                    <small class="text-muted">{{ atividade.video.titulo }}</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">
+                                    {{ atividade.completacoes }} alunos
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">
+                            <i class="bi bi-list-check display-4"></i><br>
+                            Nenhuma atividade realizada ainda
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Módulos Mais Acessados -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-collection me-2"></i>Módulos Mais Acessados</h5>
+                </div>
+                <div class="card-body">
+                    {% if modulos_populares %}
+                        <div class="list-group list-group-flush">
+                            {% for modulo in modulos_populares %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">{{ modulo.titulo }}</h6>
+                                    <small class="text-muted">{{ modulo.videos|length }} vídeos</small>
+                                </div>
+                                <span class="badge bg-success rounded-pill">
+                                    {{ modulo.acessos }} acessos
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">
+                            <i class="bi bi-collection display-4"></i><br>
+                            Nenhum módulo acessado ainda
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('professor.visualizar_turma', turma_id=turma.id) }}" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-1"></i>Voltar para Turma
+            </a>
+            <button class="btn btn-success" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i>Imprimir Relatório
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %} 

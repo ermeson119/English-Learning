@@ -107,16 +107,150 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
+    <footer class="bg-dark text-light py-5 mt-5">
         <div class="container">
             <div class="row">
-                <div class="col-md-6">
-                    <h5><i class="bi bi-book me-2"></i>English Learning Platform</h5>
-                    <p class="mb-0">Aprendendo inglês de forma dinâmica e divertida!</p>
+                <!-- Logo e Descrição -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-book-fill fs-1 text-warning me-3"></i>
+                        <div>
+                            <h4 class="mb-0 fw-bold">English Learning</h4>
+                            <small class="text-light-50">Plataforma de Ensino</small>
+                        </div>
+                    </div>
+                    <p class="text-light-50 mb-3">
+                        Transforme seu aprendizado de inglês com nossa plataforma interativa. 
+                        Vídeos, atividades e acompanhamento personalizado para seu sucesso.
+                    </p>
+                    <div class="d-flex gap-3 social-links">
+                        <a href="#" class="text-light-50 fs-5" title="Facebook">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                        <a href="#" class="text-light-50 fs-5" title="Insatagram">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                        <a href="#" class="text-light-50 fs-5" title="YouTube">
+                            <i class="bi bi-youtube"></i>
+                        </a>
+                        <a href="#" class="text-light-50 fs-5" title="LinkedIn">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Links Rápidos -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3 text-warning">Links Rápidos</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="{{ url_for('principal.index') }}" class="text-light-50 text-decoration-none">
+                                <i class="bi bi-house me-2"></i>Início
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ url_for('auth.login') }}" class="text-light-50 text-decoration-none">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ url_for('auth.registro') }}" class="text-light-50 text-decoration-none">
+                                <i class="bi bi-person-plus me-2"></i>Cadastrar
+                            </a>
+                        </li>
+                        {% if current_user.is_authenticated %}
+                            <li class="mb-2">
+                                <a href="{{ url_for('principal.dashboard') }}" class="text-light-50 text-decoration-none">
+                                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Recursos -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3 text-warning">Recursos</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <span class="text-light-50">
+                                <i class="bi bi-camera-video me-2"></i>Vídeos Interativos
+                            </span>
+                        </li>
+                        <li class="mb-2">
+                            <span class="text-light-50">
+                                <i class="bi bi-question-circle me-2"></i>Atividades Práticas
+                            </span>
+                        </li>
+                        <li class="mb-2">
+                            <span class="text-light-50">
+                                <i class="bi bi-graph-up me-2"></i>Acompanhamento de Progresso
+                            </span>
+                        </li>
+                        <li class="mb-2">
+                            <span class="text-light-50">
+                                <i class="bi bi-trophy me-2"></i>Sistema de Ranking
+                            </span>
+                        </li>
+                        <li class="mb-2">
+                            <span class="text-light-50">
+                                <i class="bi bi-people me-2"></i>Turmas Virtuais
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contato -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3 text-warning">Contato</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <span class="text-light-50">
+                                <i class="bi bi-envelope me-2"></i>contato@englishlearning.com
+                            </span>
+                        </li>
+                        <li class="mb-2">
+                            <span class="text-light-50">
+                                <i class="bi bi-telephone me-2"></i>(11) 99999-9999
+                            </span>
+                        </li>
+                        <li class="mb-2">
+                            <span class="text-light-50">
+                                <i class="bi bi-geo-alt me-2"></i>Palmas, TO
+                            </span>
+                        </li>
+                        <li class="mb-2">
+                            <span class="text-light-50">
+                                <i class="bi bi-clock me-2"></i>Seg-Sex: 8h às 18h
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Linha Divisória -->
+            <hr class="my-4 border-light-50">
+
+            <!-- Copyright e Tecnologias -->
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <p class="mb-0 text-light-50">
+                        &copy; 2024 <strong>English Learning Platform</strong>. Todos os direitos reservados.
+                    </p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <p class="mb-0">&copy; 2024 Plataforma de Ensino de Inglês</p>
-                    <small class="text-muted">Desenvolvido com Flask e Bootstrap</small>
+                    <div class="d-flex justify-content-md-end align-items-center gap-3">
+                        <small class="text-light-50">Desenvolvido com:</small>
+                        <span class="badge bg-warning text-dark me-1">
+                            <i class="bi bi-code-slash me-1"></i>Flask
+                        </span>
+                        <span class="badge bg-info text-dark me-1">
+                            <i class="bi bi-bootstrap me-1"></i>Bootstrap
+                        </span>
+                        <span class="badge bg-success text-dark">
+                            <i class="bi bi-database me-1"></i>PostgreSQL
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>

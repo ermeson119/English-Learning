@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ turma.nome }} - Detalhes{% endblock %}
+
+{% block conteudo %}
+<div class="container mt-4">
+    <!-- Cabeçalho da Turma -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="bi bi-people me-2"></i>{{ turma.nome }}</h2>
+                    {% if turma.descricao %}
+                        <p class="text-muted mb-0">{{ turma.descricao }}</p>
+                    {% endif %}
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-{{ 'success' if turma.ativa else 'secondary' }} fs-6">
+                        {{ 'Ativa' if turma.ativa else 'Inativa' }}
+                    </span>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="bi bi-key me-1"></i>Código: <code>{{ turma.codigo_acesso }}</code>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas Rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ alunos|length }}</h3>
+                    <p class="card-text">Alunos Matriculados</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ modulos|length }}</h3>
+                    <p class="card-text">Módulos Ativos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ turma.data_criacao.strftime('%d/%m/%Y') }}</h3>
+                    <p class="card-text">Data de Criação</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ ranking|length }}</h3>
+                    <p class="card-text">Alunos Ativos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Lista de Alunos -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-person-lines-fill me-2"></i>Alunos Matriculados</h5>
+                    <span class="badge bg-primary">{{ alunos|length }}</span>
+                </div>
+                <div class="card-body">
+                    {% if alunos %}
+                        <div class="list-group list-group-flush">
+                            {% for aluno in alunos %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">{{ aluno.nome }}</h6>
+                                    <small class="text-muted">{{ aluno.email }}</small>
+                                </div>
+                                <span class="badge bg-success rounded-pill">
+                                    Matriculado em {{ aluno.data_matricula.strftime('%d/%m') }}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">
+                            <i class="bi bi-people display-4"></i><br>
+                            Nenhum aluno matriculado ainda
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Ranking de Alunos -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-trophy me-2"></i>Ranking de Alunos</h5>
+                    <span class="badge bg-warning">{{ ranking|length }}</span>
+                </div>
+                <div class="card-body">
+                    {% if ranking %}
+                        <div class="list-group list-group-flush">
+                            {% for aluno in ranking %}
+                            {% set i = loop.index0 %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    {% if i == 0 %}
+                                        <i class="bi bi-trophy-fill text-warning me-2"></i>
+                                    {% elif i == 1 %}
+                                        <i class="bi bi-trophy-fill text-secondary me-2"></i>
+                                    {% elif i == 2 %}
+                                        <i class="bi bi-trophy-fill text-bronze me-2"></i>
+                                    {% else %}
+                                        <span class="badge bg-secondary me-2">{{ i + 1 }}</span>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-0">{{ aluno.nome }}</h6>
+                                        <small class="text-muted">{{ aluno.pontos }} pontos</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">
+                            <i class="bi bi-trophy display-4"></i><br>
+                            Nenhum aluno com pontuação ainda
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Módulos da Turma -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-collection me-2"></i>Módulos da Turma</h5>
+                    <a href="{{ url_for('professor.criar_modulo', turma_id=turma.id) }}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus-circle me-1"></i>Novo Módulo
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if modulos %}
+                        <div class="row">
+                            {% for modulo in modulos %}
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ modulo.titulo }}</h6>
+                                        {% if modulo.descricao %}
+                                            <p class="card-text text-muted small">{{ modulo.descricao[:100] }}{% if modulo.descricao|length > 100 %}...{% endif %}</p>
+                                        {% endif %}
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">Ordem: {{ modulo.ordem }}</small>
+                                            <span class="badge bg-{{ 'success' if modulo.ativo else 'secondary' }}">
+                                                {{ 'Ativo' if modulo.ativo else 'Inativo' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-4">
+                            <i class="bi bi-collection display-4"></i><br>
+                            Nenhum módulo criado ainda<br>
+                            <a href="{{ url_for('professor.criar_modulo', turma_id=turma.id) }}" class="btn btn-primary mt-2">
+                                <i class="bi bi-plus-circle me-1"></i>Criar Primeiro Módulo
+                            </a>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('professor.listar_turmas') }}" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-1"></i>Voltar para Turmas
+            </a>
+            <a href="{{ url_for('professor.relatorio_turma', turma_id=turma.id) }}" class="btn btn-info">
+                <i class="bi bi-graph-up me-1"></i>Ver Relatório
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 
