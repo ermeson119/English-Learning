@@ -1,0 +1,150 @@
+# Arquivos de ambiente e configurações sensíveis
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+*.env
+config.py
+secrets.py
+credentials.json
+
+# Chaves e certificados
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+id_rsa
+id_rsa.pub
+
+# Banco de dados
+*.db
+*.sqlite
+*.sqlite3
+database.db
+plataforma_ingles.db
+
+# Logs
+*.log
+logs/
+log/
+
+# Cache e arquivos temporários
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.env/
+
+# IDEs e editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Arquivos de upload
+static/uploads/
+uploads/
+media/
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+*.mkv
+
+# Arquivos de backup
+*.bak
+*.backup
+*.old
+*.tmp
+
+# Arquivos de sessão
+flask_session/
+sessions/
+
+# Arquivos de migração (opcional - remova se quiser versionar)
+migrations/
+
+# Arquivos de teste
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Arquivos do sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Redis dump
+dump.rdb
+
+# Arquivos de configuração local
+instance/
+.webassets-cache
+
+# Arquivos de dependências (se não usar requirements.txt)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Arquivos de build
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Arquivos de cache do Python
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Arquivos específicos do projeto
+env_correto.txt
+*.txt
+!requirements.txt
+!README.txt 

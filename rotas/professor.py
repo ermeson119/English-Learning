@@ -68,12 +68,22 @@ def criar_turma():
 @login_required
 def visualizar_turma(turma_id):
     turma = Turma.query.filter_by(id=turma_id, professor_id=current_user.id).first_or_404()
-    alunos = turma.obter_alunos()
+    
+    # Obter alunos com dados de matrícula
+    matriculas = Matricula.query.filter_by(turma_id=turma.id, ativa=True).all()
+    alunos_com_matricula = []
+    for matricula in matriculas:
+        aluno_data = {
+            'aluno': matricula.aluno,
+            'data_matricula': matricula.data_matricula
+        }
+        alunos_com_matricula.append(aluno_data)
+    
     ranking = turma.obter_ranking()
     modulos = Modulo.query.filter_by(turma_id=turma.id, ativo=True).order_by(Modulo.ordem).all()
     
     return render_template('professor/turma_detalhes.html', 
-                         turma=turma, alunos=alunos, ranking=ranking, modulos=modulos)
+                         turma=turma, alunos=alunos_com_matricula, ranking=ranking, modulos=modulos)
 
 @bp.route('/turmas/<int:turma_id>/modulos/novo', methods=['GET', 'POST'])
 @login_required
