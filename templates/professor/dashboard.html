@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block titulo %}Dashboard Professor - {{ current_user.nome }}{% endblock %}
+
+{% block conteudo %}
+<div class="container">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-6 fw-bold text-primary">
+                        <i class="bi bi-person-workspace me-2"></i>Dashboard do Professor
+                    </h1>
+                    <p class="lead text-muted">Bem-vindo, {{ current_user.nome }}!</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('professor.criar_turma') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-plus-circle me-2"></i>Nova Turma
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="row mb-5">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="card-title">{{ estatisticas.total_turmas }}</h3>
+                            <p class="card-text">Total de Turmas</p>
+                        </div>
+                        <i class="bi bi-people-fill" style="font-size: 3rem; opacity: 0.7;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="card-title">{{ estatisticas.total_alunos }}</h3>
+                            <p class="card-text">Total de Alunos</p>
+                        </div>
+                        <i class="bi bi-mortarboard-fill" style="font-size: 3rem; opacity: 0.7;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="card-title">{{ estatisticas.turmas_ativas }}</h3>
+                            <p class="card-text">Turmas Ativas</p>
+                        </div>
+                        <i class="bi bi-check-circle-fill" style="font-size: 3rem; opacity: 0.7;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Turmas Recentes -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-collection me-2"></i>Suas Turmas
+                        </h4>
+                        <a href="{{ url_for('professor.listar_turmas') }}" class="btn btn-outline-primary">
+                            Ver Todas
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if turmas %}
+                        <div class="row">
+                            {% for turma in turmas[:6] %}
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card border-0 shadow-sm h-100 hover-card">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-primary">{{ turma.nome }}</h5>
+                                            <p class="card-text text-muted">
+                                                {{ turma.descricao[:100] }}{% if turma.descricao|length > 100 %}...{% endif %}
+                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-people me-1"></i>{{ turma.obter_alunos()|length }} alunos
+                                                </small>
+                                                <span class="badge bg-primary">{{ turma.codigo_acesso }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer bg-transparent">
+                                            <div class="d-flex gap-2">
+                                                <a href="{{ url_for('professor.visualizar_turma', turma_id=turma.id) }}" 
+                                                   class="btn btn-primary btn-sm flex-fill">
+                                                    <i class="bi bi-eye me-1"></i>Ver Detalhes
+                                                </a>
+                                                <a href="{{ url_for('professor.relatorio_turma', turma_id=turma.id) }}" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-graph-up"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-collection text-muted" style="font-size: 4rem;"></i>
+                            <h4 class="text-muted mt-3">Nenhuma turma criada ainda</h4>
+                            <p class="text-muted">Crie sua primeira turma para começar a ensinar!</p>
+                            <a href="{{ url_for('professor.criar_turma') }}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>Criar Primeira Turma
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

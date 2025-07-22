@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block titulo %}Bem-vindo - Plataforma de Ensino de Inglês{% endblock %}
+
+{% block conteudo %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row align-items-center min-vh-75">
+        <div class="col-lg-6">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold text-primary mb-4">
+                    Aprenda Inglês de Forma <span class="text-success">Dinâmica</span> e <span class="text-warning">Divertida</span>!
+                </h1>
+                <p class="lead mb-4">
+                    Nossa plataforma oferece uma experiência de aprendizado única com vídeos interativos, 
+                    atividades gamificadas e acompanhamento personalizado do seu progresso.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{{ url_for('auth.registro') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-person-plus me-2"></i>Começar Agora
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Já tenho conta
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="hero-image text-center">
+                <img src="https://images.pexels.com/photos/5212345/pexels-photo-5212345.jpeg?auto=compress&cs=tinysrgb&w=600" 
+                     alt="Estudante aprendendo inglês" class="img-fluid rounded-3 shadow-lg">
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row py-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="display-5 fw-bold">Por que escolher nossa plataforma?</h2>
+            <p class="lead text-muted">Recursos pensados para maximizar seu aprendizado</p>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="bi bi-play-circle-fill text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h4 class="card-title">Vídeos Interativos</h4>
+                    <p class="card-text">
+                        Conteúdo organizado em módulos com vídeos didáticos e atividades práticas 
+                        ao final de cada lição.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="bi bi-controller text-success" style="font-size: 3rem;"></i>
+                    </div>
+                    <h4 class="card-title">Gamificação</h4>
+                    <p class="card-text">
+                        Sistema de pontuação, rankings por turma e atividades lúdicas que 
+                        tornam o aprendizado mais envolvente.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="bi bi-graph-up text-warning" style="font-size: 3rem;"></i>
+                    </div>
+                    <h4 class="card-title">Acompanhamento</h4>
+                    <p class="card-text">
+                        Monitore seu progresso individual e compare seu desempenho com 
+                        outros alunos da turma.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="row py-5">
+        <div class="col-12">
+            <div class="bg-primary text-white rounded-3 p-5 text-center">
+                <h3 class="mb-3">Pronto para começar sua jornada no inglês?</h3>
+                <p class="lead mb-4">
+                    Junte-se a milhares de estudantes que já estão aprendendo de forma mais eficiente!
+                </p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{{ url_for('auth.registro') }}?tipo=aluno" class="btn btn-light btn-lg">
+                        <i class="bi bi-mortarboard me-2"></i>Sou Aluno
+                    </a>
+                    <a href="{{ url_for('auth.registro') }}?tipo=professor" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-person-workspace me-2"></i>Sou Professor
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

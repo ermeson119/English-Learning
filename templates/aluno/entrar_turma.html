@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block titulo %}Entrar em Turma{% endblock %}
+
+{% block conteudo %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-plus-circle me-2"></i>Entrar em uma Turma
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted text-center mb-4">
+                        Digite o código de acesso fornecido pelo seu professor para entrar na turma.
+                    </p>
+                    
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="codigo_acesso" class="form-label">
+                                <i class="bi bi-key me-1"></i>Código de Acesso
+                            </label>
+                            <input type="text" 
+                                   class="form-control form-control-lg text-center" 
+                                   id="codigo_acesso" 
+                                   name="codigo_acesso" 
+                                   placeholder="Ex: ABC123"
+                                   required 
+                                   autocomplete="off"
+                                   style="font-size: 1.2rem; letter-spacing: 2px; font-weight: bold;">
+                            <div class="form-text">
+                                O código é fornecido pelo professor da turma.
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-arrow-right-circle me-2"></i>Entrar na Turma
+                            </button>
+                            <a href="{{ url_for('aluno.dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Voltar ao Dashboard
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Não tem um código? Entre em contato com seu professor.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const codigoInput = document.getElementById('codigo_acesso');
+    
+    // Converter para maiúsculas automaticamente
+    codigoInput.addEventListener('input', function() {
+        this.value = this.value.toUpperCase();
+    });
+    
+    // Focar no campo automaticamente
+    codigoInput.focus();
+});
+</script>
+{% endblock %} 

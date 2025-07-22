@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block titulo %}Cadastro - Plataforma de Ensino de Inglês{% endblock %}
+
+{% block conteudo %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <h3 class="mb-0">
+                        <i class="bi bi-person-plus me-2"></i>Criar Conta
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">
+                                <i class="bi bi-person me-1"></i>Nome Completo
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="nome" name="nome" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="bi bi-envelope me-1"></i>Email
+                            </label>
+                            <input type="email" class="form-control form-control-lg" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="senha" class="form-label">
+                                <i class="bi bi-lock me-1"></i>Senha
+                            </label>
+                            <input type="password" class="form-control form-control-lg" id="senha" name="senha" required minlength="6">
+                            <div class="form-text">Mínimo de 6 caracteres</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="confirmar_senha" class="form-label">
+                                <i class="bi bi-lock-fill me-1"></i>Confirmar Senha
+                            </label>
+                            <input type="password" class="form-control form-control-lg" id="confirmar_senha" name="confirmar_senha" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="bi bi-person-badge me-1"></i>Tipo de Usuário
+                            </label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="tipo_usuario" id="aluno" value="aluno" 
+                                               {% if request.args.get('tipo') == 'aluno' %}checked{% endif %}>
+                                        <label class="form-check-label" for="aluno">
+                                            <i class="bi bi-mortarboard me-1"></i>Aluno
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="tipo_usuario" id="professor" value="professor"
+                                               {% if request.args.get('tipo') == 'professor' %}checked{% endif %}>
+                                        <label class="form-check-label" for="professor">
+                                            <i class="bi bi-person-workspace me-1"></i>Professor
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-person-plus me-2"></i>Criar Conta
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center py-3">
+                    <p class="mb-0">
+                        Já tem uma conta? 
+                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none">
+                            Faça login aqui
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const senha = document.getElementById('senha');
+    const confirmarSenha = document.getElementById('confirmar_senha');
+    
+    function validarSenhas() {
+        if (senha.value !== confirmarSenha.value) {
+            confirmarSenha.setCustomValidity('As senhas não coincidem');
+        } else {
+            confirmarSenha.setCustomValidity('');
+        }
+    }
+    
+    senha.addEventListener('input', validarSenhas);
+    confirmarSenha.addEventListener('input', validarSenhas);
+});
+</script>
+{% endblock %}

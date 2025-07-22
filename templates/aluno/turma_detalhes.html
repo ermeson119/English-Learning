@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ turma.nome }} - Detalhes{% endblock %}
+
+{% block conteudo %}
+<div class="container">
+    <!-- Header da Turma -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="display-6 fw-bold">{{ turma.nome }}</h1>
+                            <p class="lead mb-2">{{ turma.descricao }}</p>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-person-circle me-2"></i>
+                                <span>Professor: {{ turma.professor.nome }}</span>
+                                <span class="mx-3">•</span>
+                                <i class="bi bi-people me-2"></i>
+                                <span>{{ turma.obter_alunos()|length }} alunos</span>
+                                {% if posicao_aluno %}
+                                    <span class="mx-3">•</span>
+                                    <i class="bi bi-trophy me-2"></i>
+                                    <span>Sua posição: {{ posicao_aluno }}º</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="bg-white bg-opacity-25 rounded p-3">
+                                <h5 class="mb-1">Código da Turma</h5>
+                                <code class="fs-4 fw-bold">{{ turma.codigo_acesso }}</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Módulos e Conteúdo -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">
+                        <i class="bi bi-collection me-2"></i>Módulos e Conteúdo
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if modulos %}
+                        {% for modulo in modulos %}
+                            <div class="mb-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <h5 class="text-primary mb-0">
+                                        <i class="bi bi-collection me-2"></i>{{ modulo.titulo }}
+                                    </h5>
+                                    <span class="badge bg-secondary ms-2">Módulo {{ modulo.ordem }}</span>
+                                </div>
+                                
+                                {% if modulo.descricao %}
+                                    <p class="text-muted mb-3">{{ modulo.descricao }}</p>
+                                {% endif %}
+                                
+                                <div class="row">
+                                    {% for video in modulo.videos %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card border-0 shadow-sm h-100 hover-card">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">{{ video.titulo }}</h6>
+                                                    {% if video.descricao %}
+                                                        <p class="card-text text-muted small">
+                                                            {{ video.descricao[:100] }}{% if video.descricao|length > 100 %}...{% endif %}
+                                                        </p>
+                                                    {% endif %}
+                                                    
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-clock me-1"></i>{{ video.duracao // 60 }}:{{ "%02d"|format(video.duracao % 60) }}
+                                                        </small>
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-list-check me-1"></i>{{ video.atividades|length }} atividades
+                                                        </small>
+                                                    </div>
+                                                    
+                                                    <a href="{{ url_for('aluno.assistir_video', video_id=video.id) }}" 
+                                                       class="btn btn-primary btn-sm w-100">
+                                                        <i class="bi bi-play-circle me-1"></i>Assistir Vídeo
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-collection text-muted" style="font-size: 4rem;"></i>
+                            <h4 class="text-muted mt-3">Nenhum módulo disponível</h4>
+                            <p class="text-muted">O professor ainda não adicionou conteúdo a esta turma.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Ranking da Turma -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-trophy me-2"></i>Ranking da Turma
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if ranking %}
+                        <div class="ranking-list">
+                            {% for item in ranking[:10] %}
+                                <div class="d-flex align-items-center p-2 {% if item.aluno.id == current_user.id %}bg-primary bg-opacity-10 rounded{% endif %}">
+                                    <div class="ranking-position me-3 
+                                                {% if loop.index == 1 %}first
+                                                {% elif loop.index == 2 %}second
+                                                {% elif loop.index == 3 %}third
+                                                {% endif %}">
+                                        {{ loop.index }}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 {% if item.aluno.id == current_user.id %}text-primary fw-bold{% endif %}">
+                                            {{ item.aluno.nome }}
+                                        </h6>
+                                        <small class="text-muted">
+                                            Matriculado em {{ item.data_matricula.strftime('%d/%m/%Y') }}
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-primary">{{ item.pontuacao }} pts</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if ranking|length > 10 %}
+                            <div class="text-center mt-3">
+                                <small class="text-muted">
+                                    Mostrando os 10 primeiros de {{ ranking|length }} alunos
+                                </small>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="bi bi-trophy text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mt-2">Nenhum aluno ainda pontuou nesta turma.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

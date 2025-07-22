@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ video.titulo }} - Vídeo{% endblock %}
+
+{% block conteudo %}
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{{ url_for('aluno.dashboard') }}">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{{ url_for('aluno.visualizar_turma', turma_id=video.modulo.turma.id) }}">
+                    {{ video.modulo.turma.nome }}
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{{ url_for('aluno.visualizar_turma', turma_id=video.modulo.turma.id) }}">
+                    {{ video.modulo.titulo }}
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">{{ video.titulo }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Vídeo -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="card-title mb-3">{{ video.titulo }}</h2>
+                    
+                    {% if video.descricao %}
+                        <p class="text-muted mb-4">{{ video.descricao }}</p>
+                    {% endif %}
+                    
+                    <!-- Player de Vídeo -->
+                    <div class="video-container mb-4">
+                        <video controls class="w-100" style="border-radius: 8px;">
+                            <source src="{{ url_for('static', filename='uploads/' + video.arquivo_video) }}" type="video/mp4">
+                            Seu navegador não suporta o elemento de vídeo.
+                        </video>
+                    </div>
+                    
+                    <!-- Informações do Vídeo -->
+                    <div class="d-flex justify-content-between align-items-center text-muted">
+                        <small>
+                            <i class="bi bi-clock me-1"></i>Duração: {{ video.duracao // 60 }}:{{ "%02d"|format(video.duracao % 60) }}
+                        </small>
+                        <small>
+                            <i class="bi bi-calendar me-1"></i>Adicionado em {{ video.data_criacao.strftime('%d/%m/%Y') }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Atividades -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-check me-2"></i>Atividades do Vídeo
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if atividades %}
+                        {% for atividade in atividades %}
+                            <div class="atividade-card card mb-3" data-atividade-id="{{ atividade.id }}">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ atividade.titulo }}</h6>
+                                    <p class="card-text small">{{ atividade.pergunta }}</p>
+                                    
+                                    {% if atividade.tipo_atividade == 'multipla_escolha' and atividade.opcoes %}
+                                        <div class="mb-3">
+                                            {% for opcao in atividade.opcoes %}
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" 
+                                                           name="atividade_{{ atividade.id }}" 
+                                                           value="{{ opcao }}" 
+                                                           id="opcao_{{ atividade.id }}_{{ loop.index }}">
+                                                    <label class="form-check-label" for="opcao_{{ atividade.id }}_{{ loop.index }}">
+                                                        {{ opcao }}
+                                                    </label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="mb-3">
+                                            <input type="text" 
+                                                   class="form-control" 
+                                                   placeholder="Digite sua resposta..."
+                                                   data-atividade-id="{{ atividade.id }}">
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <span class="tentativas">Tentativas: 0</span>
+                                        </small>
+                                        <button class="btn btn-primary btn-sm responder-atividade" 
+                                                data-atividade-id="{{ atividade.id }}">
+                                            Responder
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Resultado da resposta -->
+                                    <div class="resultado-atividade mt-2" style="display: none;">
+                                        <div class="alert" role="alert">
+                                            <span class="mensagem-resultado"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="bi bi-list-check text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mt-2">Nenhuma atividade disponível para este vídeo.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Responder atividades
+    document.querySelectorAll('.responder-atividade').forEach(button => {
+        button.addEventListener('click', function() {
+            const atividadeId = this.getAttribute('data-atividade-id');
+            const atividadeCard = document.querySelector(`[data-atividade-id="${atividadeId}"]`);
+            
+            // Obter resposta
+            let resposta = '';
+            const radioButtons = atividadeCard.querySelectorAll('input[type="radio"]:checked');
+            const textInput = atividadeCard.querySelector('input[type="text"]');
+            
+            if (radioButtons.length > 0) {
+                resposta = radioButtons[0].value;
+            } else if (textInput) {
+                resposta = textInput.value.trim();
+            }
+            
+            if (!resposta) {
+                alert('Por favor, selecione ou digite uma resposta.');
+                return;
+            }
+            
+            // Enviar resposta
+            const formData = new FormData();
+            formData.append('resposta', resposta);
+            
+            fetch(`/aluno/atividades/${atividadeId}/responder`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Mostrar resultado
+                const resultadoDiv = atividadeCard.querySelector('.resultado-atividade');
+                const mensagemSpan = atividadeCard.querySelector('.mensagem-resultado');
+                const alertDiv = resultadoDiv.querySelector('.alert');
+                
+                mensagemSpan.textContent = data.mensagem;
+                alertDiv.className = `alert alert-${data.tipo_mensagem}`;
+                resultadoDiv.style.display = 'block';
+                
+                // Atualizar tentativas
+                const tentativasSpan = atividadeCard.querySelector('.tentativas');
+                tentativasSpan.textContent = `Tentativas: ${data.tentativas}`;
+                
+                // Atualizar classe do card
+                atividadeCard.classList.remove('correta', 'incorreta');
+                if (data.sucesso) {
+                    atividadeCard.classList.add('correta');
+                    button.disabled = true;
+                    button.textContent = 'Correto!';
+                } else {
+                    atividadeCard.classList.add('incorreta');
+                }
+                
+                // Scroll para o resultado
+                resultadoDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao enviar resposta. Tente novamente.');
+            });
+        });
+    });
+    
+    // Permitir resposta por Enter no campo de texto
+    document.querySelectorAll('input[type="text"]').forEach(input => {
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const atividadeId = this.getAttribute('data-atividade-id');
+                const button = document.querySelector(`[data-atividade-id="${atividadeId}"] .responder-atividade`);
+                button.click();
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

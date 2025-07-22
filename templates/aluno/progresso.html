@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block titulo %}Meu Progresso - {{ current_user.nome }}{% endblock %}
+
+{% block conteudo %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="bi bi-graph-up text-primary me-2"></i>Meu Progresso
+            </h1>
+            
+            {% if progresso_detalhado %}
+                {% for progresso_turma in progresso_detalhado %}
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-people me-2"></i>{{ progresso_turma.turma.nome }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% for progresso_modulo in progresso_turma.modulos %}
+                                <div class="mb-4">
+                                    <h6 class="text-secondary mb-3">
+                                        <i class="bi bi-collection me-2"></i>{{ progresso_modulo.modulo.titulo }}
+                                    </h6>
+                                    
+                                    <div class="row">
+                                        {% for progresso_video in progresso_modulo.videos %}
+                                            <div class="col-md-6 col-lg-4 mb-3">
+                                                <div class="card h-100 border-0 shadow-sm">
+                                                    <div class="card-body">
+                                                        <h6 class="card-title">{{ progresso_video.video.titulo }}</h6>
+                                                        
+                                                        <div class="mb-2">
+                                                            <small class="text-muted">
+                                                                {{ progresso_video.atividades_concluidas }} de {{ progresso_video.total_atividades }} atividades
+                                                            </small>
+                                                        </div>
+                                                        
+                                                        <div class="progress mb-2" style="height: 8px;">
+                                                            <div class="progress-bar bg-success" 
+                                                                 style="width: {{ progresso_video.percentual_conclusao }}%"
+                                                                 role="progressbar">
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <span class="badge bg-primary">{{ progresso_video.percentual_conclusao }}%</span>
+                                                            <span class="text-success fw-bold">{{ progresso_video.pontuacao }} pts</span>
+                                                        </div>
+                                                        
+                                                        {% if progresso_video.percentual_conclusao < 100 %}
+                                                            <a href="{{ url_for('aluno.assistir_video', video_id=progresso_video.video.id) }}" 
+                                                               class="btn btn-sm btn-outline-primary mt-2 w-100">
+                                                                <i class="bi bi-play-circle me-1"></i>Continuar
+                                                            </a>
+                                                        {% else %}
+                                                            <span class="badge bg-success mt-2">
+                                                                <i class="bi bi-check-circle me-1"></i>Concluído
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="text-muted mt-3">Nenhuma turma encontrada</h4>
+                    <p class="text-muted">Você ainda não está matriculado em nenhuma turma.</p>
+                    <a href="{{ url_for('aluno.entrar_turma') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Entrar em uma Turma
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
