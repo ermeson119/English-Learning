@@ -53,6 +53,10 @@ services:
       - FLASK_RUN_HOST=0.0.0.0
       - FLASK_RUN_PORT=8000
       - REDIS_URL=redis://redis:6379/0
+      - MAX_CONTENT_LENGTH=524288000
+    command: >
+      sh -c "python -c 'import sys; sys.setrecursionlimit(10000)' && 
+             python app.py"
 
 volumes:
   pgdata:

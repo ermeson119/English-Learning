@@ -20,4 +20,4 @@ class Config:
     
     # Configurações de upload
     UPLOAD_FOLDER = 'static/uploads'
-    MAX_CONTENT_LENGTH = 500 * 1024 * 1024  # 500MB para vídeos
+    MAX_CONTENT_LENGTH = 1024 * 1024 * 1024  # 1GB para vídeos

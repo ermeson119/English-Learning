@@ -76,7 +76,12 @@
                                                     
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                                         <small class="text-muted">
-                                                            <i class="bi bi-clock me-1"></i>{{ video.duracao // 60 }}:{{ "%02d"|format(video.duracao % 60) }}
+                                                            <i class="bi bi-clock me-1"></i>
+                                                            {% if video.duracao %}
+                                                                {{ video.duracao // 60 }}:{{ "%02d"|format(video.duracao % 60) }}
+                                                            {% else %}
+                                                                --:--
+                                                            {% endif %}
                                                         </small>
                                                         <small class="text-muted">
                                                             <i class="bi bi-list-check me-1"></i>{{ video.atividades|length }} atividades

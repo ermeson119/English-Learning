@@ -72,9 +72,11 @@ venv.bak/
 Thumbs.db
 
 # Arquivos de upload
-static/uploads/
-uploads/
-media/
+static/uploads/*
+!static/uploads/.gitkeep
+!static/uploads/videos/
+static/uploads/videos/*
+!static/uploads/videos/.gitkeep
 *.mp4
 *.avi
 *.mov
@@ -82,6 +84,7 @@ media/
 *.flv
 *.webm
 *.mkv
+*.m4v
 
 # Arquivos de backup
 *.bak

@@ -4,6 +4,9 @@ from modelos.models import Usuario, Turma, Matricula, Modulo, Video, Atividade, 
 from modelos.models import db
 import secrets
 import string
+import os
+import uuid
+from werkzeug.utils import secure_filename
 
 bp = Blueprint('professor', __name__)
 
@@ -128,31 +131,130 @@ def criar_video(modulo_id):
     if request.method == 'POST':
         titulo = request.form.get('titulo')
         descricao = request.form.get('descricao')
-        arquivo_video = request.form.get('arquivo_video')  # URL do vídeo
+        duracao = request.form.get('duracao')
         
-        if not all([titulo, arquivo_video]):
-            flash('Título e arquivo de vídeo são obrigatórios.', 'danger')
+        # Verificar se arquivo foi enviado
+        if 'arquivo_video' not in request.files:
+            flash('Nenhum arquivo foi selecionado.', 'danger')
             return render_template('professor/criar_video.html', modulo=modulo)
         
-        # Determinar próxima ordem
-        ultimo_video = Video.query.filter_by(modulo_id=modulo.id).order_by(Video.ordem.desc()).first()
-        proxima_ordem = (ultimo_video.ordem + 1) if ultimo_video else 1
+        arquivo = request.files['arquivo_video']
         
-        novo_video = Video(
-            titulo=titulo,
-            descricao=descricao,
-            arquivo_video=arquivo_video,
-            ordem=proxima_ordem,
-            modulo_id=modulo.id
-        )
+        if arquivo.filename == '':
+            flash('Nenhum arquivo foi selecionado.', 'danger')
+            return render_template('professor/criar_video.html', modulo=modulo)
         
-        db.session.add(novo_video)
-        db.session.commit()
+        if not titulo:
+            flash('Título do vídeo é obrigatório.', 'danger')
+            return render_template('professor/criar_video.html', modulo=modulo)
         
-        flash(f'Vídeo "{titulo}" adicionado com sucesso!', 'success')
-        return redirect(url_for('professor.visualizar_turma', turma_id=modulo.turma_id))
+        # Verificar extensão do arquivo
+        extensoes_permitidas = {'mp4', 'avi', 'mov', 'mkv', 'webm', 'm4v'}
+        if '.' not in arquivo.filename or \
+           arquivo.filename.rsplit('.', 1)[1].lower() not in extensoes_permitidas:
+            flash('Formato de arquivo não suportado. Use: MP4, AVI, MOV, MKV, WEBM, M4V', 'danger')
+            return render_template('professor/criar_video.html', modulo=modulo)
+        
+        # Verificar tamanho do arquivo (máximo 1GB)
+        arquivo.seek(0, os.SEEK_END)
+        tamanho = arquivo.tell()
+        arquivo.seek(0)
+        
+        if tamanho > 1024 * 1024 * 1024:  # 1GB
+            flash('Arquivo muito grande. Tamanho máximo: 1GB', 'danger')
+            return render_template('professor/criar_video.html', modulo=modulo)
+        
+        # Salvar arquivo
+        try:
+            # Criar diretório se não existir
+            upload_dir = os.path.join('static', 'uploads', 'videos')
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            # Gerar nome único para o arquivo
+            nome_arquivo = secure_filename(arquivo.filename)
+            nome_base, extensao = os.path.splitext(nome_arquivo)
+            nome_unico = f"{uuid.uuid4().hex}_{nome_base}{extensao}"
+            caminho_arquivo = os.path.join(upload_dir, nome_unico)
+            
+            # Salvar arquivo
+            arquivo.save(caminho_arquivo)
+            
+            # Calcular duração se fornecida
+            duracao_segundos = None
+            if duracao:
+                try:
+                    duracao_segundos = int(duracao) * 60  # Converter minutos para segundos
+                except ValueError:
+                    pass
+            
+            # Determinar próxima ordem
+            ultimo_video = Video.query.filter_by(modulo_id=modulo.id).order_by(Video.ordem.desc()).first()
+            proxima_ordem = (ultimo_video.ordem + 1) if ultimo_video else 1
+            
+            novo_video = Video(
+                titulo=titulo,
+                descricao=descricao,
+                arquivo_video=f'uploads/videos/{nome_unico}',  # Caminho relativo
+                duracao=duracao_segundos,
+                ordem=proxima_ordem,
+                modulo_id=modulo.id
+            )
+            
+            db.session.add(novo_video)
+            db.session.commit()
+            
+            flash(f'Vídeo "{titulo}" adicionado com sucesso!', 'success')
+            return redirect(url_for('professor.visualizar_turma', turma_id=modulo.turma_id))
+            
+        except Exception as e:
+            flash(f'Erro ao salvar arquivo: {str(e)}', 'danger')
+            return render_template('professor/criar_video.html', modulo=modulo)
     
     return render_template('professor/criar_video.html', modulo=modulo)
+
+@bp.route('/videos/<path:filename>')
+def servir_video(filename):
+    """Serve arquivos de vídeo com tipo MIME correto"""
+    from flask import send_from_directory, Response, current_app
+    import mimetypes
+    import os
+    
+    # Caminho completo do arquivo
+    video_path = os.path.join(current_app.root_path, 'static', 'uploads', 'videos', filename)
+    
+    # Debug: verificar se arquivo existe
+    if not os.path.exists(video_path):
+        current_app.logger.error(f"Arquivo não encontrado: {video_path}")
+        return f"Arquivo não encontrado: {filename}", 404
+    
+    current_app.logger.info(f"Servindo vídeo: {filename} - Tamanho: {os.path.getsize(video_path)} bytes")
+    
+    # Detectar tipo MIME baseado na extensão
+    mime_type, _ = mimetypes.guess_type(filename)
+    
+    # Mapear extensões para tipos MIME específicos
+    mime_map = {
+        '.mp4': 'video/mp4',
+        '.avi': 'video/x-msvideo',
+        '.mov': 'video/quicktime',
+        '.mkv': 'video/x-matroska',
+        '.webm': 'video/webm',
+        '.m4v': 'video/x-m4v'
+    }
+    
+    # Obter extensão do arquivo
+    _, ext = os.path.splitext(filename.lower())
+    if ext in mime_map:
+        mime_type = mime_map[ext]
+    elif not mime_type:
+        mime_type = 'video/mp4'  # Fallback
+    
+    # Servir arquivo com tipo MIME correto
+    return send_from_directory(
+        'static/uploads/videos', 
+        filename,
+        mimetype=mime_type
+    )
 
 @bp.route('/videos/<int:video_id>/atividades/nova', methods=['GET', 'POST'])
 @login_required

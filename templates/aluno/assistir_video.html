@@ -37,16 +37,46 @@
                     
                     <!-- Player de Vídeo -->
                     <div class="video-container mb-4">
-                        <video controls class="w-100" style="border-radius: 8px;">
-                            <source src="{{ url_for('static', filename='uploads/' + video.arquivo_video) }}" type="video/mp4">
-                            Seu navegador não suporta o elemento de vídeo.
+                        <video controls class="w-100" style="border-radius: 8px;" preload="metadata">
+                            {% set filename = video.arquivo_video.split('/')[-1] %}
+                            {% set extension = filename.split('.')[-1].lower() %}
+                            
+                            {% if extension == 'mp4' %}
+                                <source src="{{ url_for('professor.servir_video', filename=filename) }}" type="video/mp4">
+                            {% elif extension == 'webm' %}
+                                <source src="{{ url_for('professor.servir_video', filename=filename) }}" type="video/webm">
+                            {% elif extension == 'avi' %}
+                                <source src="{{ url_for('professor.servir_video', filename=filename) }}" type="video/x-msvideo">
+                            {% elif extension == 'mov' %}
+                                <source src="{{ url_for('professor.servir_video', filename=filename) }}" type="video/quicktime">
+                            {% elif extension == 'mkv' %}
+                                <source src="{{ url_for('professor.servir_video', filename=filename) }}" type="video/x-matroska">
+                            {% elif extension == 'm4v' %}
+                                <source src="{{ url_for('professor.servir_video', filename=filename) }}" type="video/x-m4v">
+                            {% else %}
+                                <source src="{{ url_for('professor.servir_video', filename=filename) }}" type="video/mp4">
+                            {% endif %}
+                            
+                            <p class="text-center text-muted mt-3">
+                                Seu navegador não suporta a reprodução deste formato de vídeo. 
+                                <br>
+                                <small>Formato: {{ extension.upper() }} | 
+                                <a href="{{ url_for('professor.servir_video', filename=filename) }}" 
+                                   download="{{ video.titulo }}.{{ extension }}" 
+                                   class="text-primary">Download do vídeo</a></small>
+                            </p>
                         </video>
                     </div>
                     
                     <!-- Informações do Vídeo -->
                     <div class="d-flex justify-content-between align-items-center text-muted">
                         <small>
-                            <i class="bi bi-clock me-1"></i>Duração: {{ video.duracao // 60 }}:{{ "%02d"|format(video.duracao % 60) }}
+                            <i class="bi bi-clock me-1"></i>Duração: 
+                            {% if video.duracao %}
+                                {{ video.duracao // 60 }}:{{ "%02d"|format(video.duracao % 60) }}
+                            {% else %}
+                                --:--
+                            {% endif %}
                         </small>
                         <small>
                             <i class="bi bi-calendar me-1"></i>Adicionado em {{ video.data_criacao.strftime('%d/%m/%Y') }}
@@ -203,6 +233,33 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Configurar player de vídeo
+    const video = document.querySelector('video');
+    if (video) {
+        video.addEventListener('error', function(e) {
+            console.error('Erro no vídeo:', e);
+            const videoContainer = document.querySelector('.video-container');
+            videoContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="bi bi-exclamation-triangle display-1 text-warning mb-3"></i>
+                    <h4 class="text-warning">Erro ao carregar o vídeo</h4>
+                    <p class="text-muted">Não foi possível reproduzir este arquivo de vídeo.</p>
+                    <div class="mt-3">
+                        <a href="${video.querySelector('source').src}" 
+                           download 
+                           class="btn btn-primary">
+                            <i class="bi bi-download me-2"></i>Download do Vídeo
+                        </a>
+                    </div>
+                </div>
+            `;
+        });
+        
+        video.addEventListener('loadedmetadata', function() {
+            console.log('Vídeo carregado com sucesso');
+        });
+    }
 });
 </script>
 {% endblock %} 

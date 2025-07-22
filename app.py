@@ -11,6 +11,13 @@ def criar_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')
     
+    # Configurar limite de upload para 1GB
+    app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024  # 1GB
+    
+    # Configurações adicionais para upload de arquivos grandes
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
+    
     # Inicializar extensões
     login_manager = LoginManager()
     migrate = Migrate()
@@ -45,6 +52,11 @@ def criar_app():
     
     # Criar diretórios necessários
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    
+    # Handler para arquivos muito grandes
+    @app.errorhandler(413)
+    def too_large(e):
+        return "Arquivo muito grande. Tamanho máximo: 1GB", 413
     
     return app
 
