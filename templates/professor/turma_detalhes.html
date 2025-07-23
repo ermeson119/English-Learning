@@ -151,8 +151,12 @@
                 </div>
                 <div class="card-body">
                     {% if modulos %}
-                        <div class="accordion" id="modulosAccordion">
-                            {% for modulo in modulos %}
+                        <!-- Módulos Ativos -->
+                        <h6 class="text-success mb-3">
+                            <i class="bi bi-check-circle me-2"></i>Módulos Ativos
+                        </h6>
+                        <div class="accordion mb-4" id="modulosAtivosAccordion">
+                            {% for modulo in modulos if modulo.ativo %}
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="modulo{{ modulo.id }}">
                                     <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ modulo.id }}">
@@ -204,12 +208,14 @@
                                                                 <a href="{{ url_for('professor.criar_atividade', video_id=video.id) }}" class="btn btn-outline-success" title="Adicionar Atividade">
                                                                     <i class="bi bi-question-circle"></i>
                                                                 </a>
-                                                                <button class="btn btn-outline-info" title="Editar Vídeo">
+                                                                <a href="{{ url_for('professor.editar_video', video_id=video.id) }}" class="btn btn-outline-info" title="Editar Vídeo">
                                                                     <i class="bi bi-pencil"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-danger" title="Excluir Vídeo">
-                                                                    <i class="bi bi-trash"></i>
-                                                                </button>
+                                                                </a>
+                                                                <form method="POST" action="{{ url_for('professor.excluir_video', video_id=video.id) }}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este vídeo?')">
+                                                                    <button type="submit" class="btn btn-outline-danger" title="Excluir Vídeo">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </button>
+                                                                </form>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -232,15 +238,20 @@
                                                 Criado em {{ modulo.data_criacao.strftime('%d/%m/%Y') }}
                                             </small>
                                             <div class="btn-group btn-group-sm">
-                                                <button class="btn btn-outline-primary" title="Editar Módulo">
+                                                <a href="{{ url_for('professor.editar_modulo', modulo_id=modulo.id) }}" class="btn btn-outline-primary" title="Editar Módulo">
                                                     <i class="bi bi-pencil me-1"></i>Editar
-                                                </button>
-                                                <button class="btn btn-outline-warning" title="Desativar/Ativar Módulo">
-                                                    <i class="bi bi-toggle-on me-1"></i>Status
-                                                </button>
-                                                <button class="btn btn-outline-danger" title="Excluir Módulo">
-                                                    <i class="bi bi-trash me-1"></i>Excluir
-                                                </button>
+                                                </a>
+                                                <form method="POST" action="{{ url_for('professor.alterar_status_modulo', modulo_id=modulo.id) }}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja alterar o status deste módulo?')">
+                                                    <button type="submit" class="btn btn-{{ 'warning' if modulo.ativo else 'success' }}" title="{{ 'Desativar' if modulo.ativo else 'Ativar' }} Módulo">
+                                                        <i class="bi bi-{{ 'toggle-on' if modulo.ativo else 'toggle-off' }} me-1"></i>
+                                                        {{ 'Desativar' if modulo.ativo else 'Ativar' }}
+                                                    </button>
+                                                </form>
+                                                <form method="POST" action="{{ url_for('professor.excluir_modulo', modulo_id=modulo.id) }}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este módulo?')">
+                                                    <button type="submit" class="btn btn-outline-danger" title="Excluir Módulo">
+                                                        <i class="bi bi-trash me-1"></i>Excluir
+                                                    </button>
+                                                </form>
                                             </div>
                                         </div>
                                     </div>
@@ -248,6 +259,39 @@
                             </div>
                             {% endfor %}
                         </div>
+                        
+                        <!-- Módulos Inativos -->
+                        {% set modulos_inativos = modulos | selectattr('ativo', 'equalto', false) | list %}
+                        {% if modulos_inativos %}
+                        <h6 class="text-muted mb-3 mt-4">
+                            <i class="bi bi-x-circle me-2"></i>Módulos Inativos
+                        </h6>
+                        <div class="list-group">
+                            {% for modulo in modulos_inativos %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1 text-muted">{{ modulo.titulo }}</h6>
+                                    <small class="text-muted">Ordem: {{ modulo.ordem }} • {{ modulo.videos|length }} vídeos</small>
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('professor.editar_modulo', modulo_id=modulo.id) }}" class="btn btn-outline-primary" title="Editar Módulo">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form method="POST" action="{{ url_for('professor.alterar_status_modulo', modulo_id=modulo.id) }}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja ativar este módulo?')">
+                                        <button type="submit" class="btn btn-success" title="Ativar Módulo">
+                                            <i class="bi bi-toggle-off me-1"></i>Ativar
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('professor.excluir_modulo', modulo_id=modulo.id) }}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este módulo?')">
+                                        <button type="submit" class="btn btn-outline-danger" title="Excluir Módulo">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                     {% else %}
                         <div class="text-center py-5">
                             <i class="bi bi-collection display-1 text-muted mb-3"></i>

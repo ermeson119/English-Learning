@@ -83,7 +83,7 @@ def visualizar_turma(turma_id):
         alunos_com_matricula.append(aluno_data)
     
     ranking = turma.obter_ranking()
-    modulos = Modulo.query.filter_by(turma_id=turma.id, ativo=True).order_by(Modulo.ordem).all()
+    modulos = Modulo.query.filter_by(turma_id=turma.id).order_by(Modulo.ordem).all()
     
     return render_template('professor/turma_detalhes.html', 
                          turma=turma, alunos=alunos_com_matricula, ranking=ranking, modulos=modulos)
@@ -194,7 +194,7 @@ def criar_video(modulo_id):
             novo_video = Video(
                 titulo=titulo,
                 descricao=descricao,
-                arquivo_video=f'uploads/videos/{nome_unico}',  # Caminho relativo
+                arquivo_video=nome_unico,  
                 duracao=duracao_segundos,
                 ordem=proxima_ordem,
                 modulo_id=modulo.id
@@ -342,3 +342,177 @@ def relatorio_turma(turma_id):
     
     return render_template('professor/relatorio_turma.html', 
                          turma=turma, alunos_progresso=alunos_progresso)
+
+# Rotas para edição e exclusão de módulos
+@bp.route('/modulos/<int:modulo_id>/editar', methods=['GET', 'POST'])
+@login_required
+def editar_modulo(modulo_id):
+    modulo = Modulo.query.join(Turma).filter(
+        Modulo.id == modulo_id,
+        Turma.professor_id == current_user.id
+    ).first_or_404()
+    
+    if request.method == 'POST':
+        titulo = request.form.get('titulo')
+        descricao = request.form.get('descricao')
+        
+        if not titulo:
+            flash('Título do módulo é obrigatório.', 'danger')
+            return render_template('professor/editar_modulo.html', modulo=modulo)
+        
+        modulo.titulo = titulo
+        modulo.descricao = descricao
+        db.session.commit()
+        
+        flash(f'Módulo "{titulo}" atualizado com sucesso!', 'success')
+        return redirect(url_for('professor.visualizar_turma', turma_id=modulo.turma_id))
+    
+    return render_template('professor/editar_modulo.html', modulo=modulo)
+
+@bp.route('/modulos/<int:modulo_id>/excluir', methods=['POST'])
+@login_required
+def excluir_modulo(modulo_id):
+    modulo = Modulo.query.join(Turma).filter(
+        Modulo.id == modulo_id,
+        Turma.professor_id == current_user.id
+    ).first_or_404()
+    
+    turma_id = modulo.turma_id
+    nome_modulo = modulo.titulo
+    
+    # Verificar se há vídeos no módulo
+    if modulo.videos:
+        flash('Não é possível excluir um módulo que contém vídeos. Remova os vídeos primeiro.', 'danger')
+        return redirect(url_for('professor.visualizar_turma', turma_id=turma_id))
+    
+    db.session.delete(modulo)
+    db.session.commit()
+    
+    flash(f'Módulo "{nome_modulo}" excluído com sucesso!', 'success')
+    return redirect(url_for('professor.visualizar_turma', turma_id=turma_id))
+
+@bp.route('/modulos/<int:modulo_id>/status', methods=['POST'])
+@login_required
+def alterar_status_modulo(modulo_id):
+    modulo = Modulo.query.join(Turma).filter(
+        Modulo.id == modulo_id,
+        Turma.professor_id == current_user.id
+    ).first_or_404()
+    
+    modulo.ativo = not modulo.ativo
+    status = "ativado" if modulo.ativo else "desativado"
+    db.session.commit()
+    
+    flash(f'Módulo "{modulo.titulo}" {status} com sucesso!', 'success')
+    return redirect(url_for('professor.visualizar_turma', turma_id=modulo.turma_id))
+
+# Rotas para edição e exclusão de vídeos
+@bp.route('/videos/<int:video_id>/editar', methods=['GET', 'POST'])
+@login_required
+def editar_video(video_id):
+    video = Video.query.join(Modulo).join(Turma).filter(
+        Video.id == video_id,
+        Turma.professor_id == current_user.id
+    ).first_or_404()
+    
+    if request.method == 'POST':
+        titulo = request.form.get('titulo')
+        descricao = request.form.get('descricao')
+        ordem = int(request.form.get('ordem', 1))
+        
+        if not titulo:
+            flash('Título do vídeo é obrigatório.', 'danger')
+            return render_template('professor/editar_video.html', video=video)
+        
+        # Verificar se um novo arquivo foi enviado
+        if 'arquivo' in request.files and request.files['arquivo'].filename:
+            arquivo = request.files['arquivo']
+            
+            # Verificar extensão
+            extensoes_permitidas = {'.mp4', '.avi', '.mov', '.mkv', '.wmv', '.flv', '.webm'}
+            _, ext = os.path.splitext(arquivo.filename.lower())
+            
+            if ext not in extensoes_permitidas:
+                flash('Formato de arquivo não suportado. Use: MP4, AVI, MOV, MKV, WMV, FLV, WEBM', 'danger')
+                return render_template('professor/editar_video.html', video=video)
+            
+            # Verificar tamanho (1GB)
+            if arquivo.content_length and arquivo.content_length > 1024 * 1024 * 1024:
+                flash('Arquivo muito grande. Tamanho máximo: 1GB', 'danger')
+                return render_template('professor/editar_video.html', video=video)
+            
+            # Remover arquivo antigo se existir
+            if video.arquivo_video and os.path.exists(os.path.join('static/uploads/videos', video.arquivo_video)):
+                try:
+                    os.remove(os.path.join('static/uploads/videos', video.arquivo_video))
+                except:
+                    pass
+            
+            # Salvar novo arquivo
+            nome_arquivo = f"{uuid.uuid4()}{ext}"
+            arquivo.save(os.path.join('static/uploads/videos', nome_arquivo))
+            video.arquivo_video = nome_arquivo
+        
+        video.titulo = titulo
+        video.descricao = descricao
+        video.ordem = ordem
+        db.session.commit()
+        
+        flash(f'Vídeo "{titulo}" atualizado com sucesso!', 'success')
+        return redirect(url_for('professor.visualizar_turma', turma_id=video.modulo.turma_id))
+    
+    return render_template('professor/editar_video.html', video=video)
+
+@bp.route('/videos/<int:video_id>/excluir', methods=['POST'])
+@login_required
+def excluir_video(video_id):
+    try:
+        print(f"Iniciando exclusão do vídeo {video_id}")
+        
+        # Buscar o vídeo
+        video = Video.query.get(video_id)
+        if not video:
+            flash('Vídeo não encontrado.', 'danger')
+            return redirect(url_for('professor.listar_turmas'))
+        
+        # Verificar se o professor tem permissão
+        if video.modulo.turma.professor_id != current_user.id:
+            flash('Você não tem permissão para excluir este vídeo.', 'danger')
+            return redirect(url_for('professor.listar_turmas'))
+        
+        turma_id = video.modulo.turma_id
+        nome_video = video.titulo
+        
+        print(f"Vídeo encontrado: {nome_video}")
+        
+        # Verificar se há atividades
+        atividades_count = Atividade.query.filter_by(video_id=video_id).count()
+        print(f"Atividades encontradas: {atividades_count}")
+        
+        if atividades_count > 0:
+            flash('Não é possível excluir um vídeo que contém atividades. Remova as atividades primeiro.', 'danger')
+            return redirect(url_for('professor.visualizar_turma', turma_id=turma_id))
+        
+        # Remover arquivo se existir
+        if video.arquivo_video:
+            caminho_arquivo = os.path.join('static/uploads/videos', video.arquivo_video)
+            print(f"Tentando remover arquivo: {caminho_arquivo}")
+            if os.path.exists(caminho_arquivo):
+                os.remove(caminho_arquivo)
+                print("Arquivo removido com sucesso")
+        
+        # Remover do banco
+        db.session.delete(video)
+        db.session.commit()
+        print("Vídeo removido do banco de dados")
+        
+        flash(f'Vídeo "{nome_video}" excluído com sucesso!', 'success')
+        return redirect(url_for('professor.visualizar_turma', turma_id=turma_id))
+        
+    except Exception as e:
+        print(f"Erro na exclusão: {e}")
+        import traceback
+        traceback.print_exc()
+        flash(f'Erro ao excluir vídeo: {str(e)}', 'danger')
+        return redirect(url_for('professor.listar_turmas'))
+

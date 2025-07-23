@@ -39,9 +39,7 @@
                                                         </div>
                                                         
                                                         <div class="progress mb-2" style="height: 8px;">
-                                                            <div class="progress-bar bg-success" 
-                                                                 style="width: {{ progresso_video.percentual_conclusao }}%"
-                                                                 role="progressbar">
+                                                            <div class="progress-bar bg-success" data-width="{{ (progresso_video.percentual_conclusao or 0)|round(1) }}" style="width: 0%" role="progressbar">
                                                             </div>
                                                         </div>
                                                         
@@ -83,4 +81,14 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('.progress-bar[data-width]');
+    progressBars.forEach(function(bar) {
+        const width = bar.getAttribute('data-width');
+        bar.style.width = width + '%';
+    });
+});
+</script>
 {% endblock %} 

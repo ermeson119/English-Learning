@@ -93,8 +93,8 @@
                     </h5>
                     <div class="progress mb-2" style="height: 25px;">
                         <div class="progress-bar bg-success" role="progressbar" 
-                             style="width: {{ estatisticas.percentual_conclusao }}%">
-                            {{ "%.1f"|format(estatisticas.percentual_conclusao) }}%
+                             data-width="{{ (estatisticas.percentual_conclusao or 0)|round(1) }}" style="width: 0%">
+                            {{ "%.1f"|format(estatisticas.percentual_conclusao or 0) }}%
                         </div>
                     </div>
                     <small class="text-muted">
@@ -165,4 +165,14 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('.progress-bar[data-width]');
+    progressBars.forEach(function(bar) {
+        const width = bar.getAttribute('data-width');
+        bar.style.width = width + '%';
+    });
+});
+</script>
 {% endblock %}

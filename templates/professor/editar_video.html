@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block titulo %}Editar Vídeo - {{ video.titulo }}{% endblock %}
+
+{% block conteudo %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil me-2"></i>Editar Vídeo
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="titulo" class="form-label">Título do Vídeo *</label>
+                            <input type="text" class="form-control" id="titulo" name="titulo" 
+                                   value="{{ video.titulo }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="descricao" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="descricao" name="descricao" 
+                                      rows="4">{{ video.descricao or '' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="ordem" class="form-label">Ordem no Módulo</label>
+                            <input type="number" class="form-control" id="ordem" name="ordem" 
+                                   value="{{ video.ordem }}" min="1">
+                        </div>
+                        
+                        {% if video.arquivo_video %}
+                        <div class="mb-3">
+                            <label class="form-label">Arquivo Atual</label>
+                            <div class="alert alert-info">
+                                <i class="bi bi-file-earmark-video me-2"></i>{{ video.arquivo_video }}
+                                <br><small class="text-muted">Deixe em branco para manter o arquivo atual ou selecione um novo arquivo para substituir.</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="arquivo" class="form-label">
+                                {% if video.arquivo_video %}Novo Arquivo de Vídeo{% else %}Arquivo de Vídeo *{% endif %}
+                            </label>
+                            <input type="file" class="form-control" id="arquivo" name="arquivo" 
+                                   accept="video/*" {% if not video.arquivo_video %}required{% endif %}>
+                            <div class="form-text">
+                                Formatos aceitos: MP4, AVI, MOV, MKV, WMV, FLV, WEBM. Tamanho máximo: 1GB
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('professor.visualizar_turma', turma_id=video.modulo.turma_id) }}" 
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i>Salvar Alterações
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
